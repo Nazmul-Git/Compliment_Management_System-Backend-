@@ -29,9 +29,11 @@
     "@shopify/polaris-icons": "^9.3.0",
     "@tailwindcss/vite": "^4.0.6",
     "axios": "^1.7.9",
+    "framer-motion": "^12.4.2",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-icons": "^5.4.0",
     "react-router-dom": "^7.1.5"
   }
 }
