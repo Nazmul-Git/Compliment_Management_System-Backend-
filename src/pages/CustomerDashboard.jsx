@@ -85,21 +85,27 @@ const CustomerDashboard = () => {
         if (window.confirm('Are you sure you want to delete this ticket?')) {
             try {
                 const token = localStorage.getItem('token');
+                if (!token) {
+                    setError('❗ You need to be logged in to delete a ticket');
+                    return;
+                }
+
                 await axios.delete(`http://localhost:5000/api/tickets/${ticketId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                fetchTickets();
+                fetchTickets();  // Fetch the updated list of tickets
             } catch (error) {
                 setError(error.message || '❗ Failed to delete ticket');
             }
         }
     };
 
+
     // Logout method
     const handleLogout = () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
-        navigate('/'); 
+        navigate('/');
     };
 
     return (
@@ -183,8 +189,12 @@ const CustomerDashboard = () => {
                                     <CustomerTicketCard
                                         key={ticket.id}
                                         ticket={ticket}
-                                        handleDeleteTicket={handleDeleteTicket}
+                                        handleDeleteTicket={(ticketId) => {
+                                            // console.log("Deleting ticket with ID:", ticketId); 
+                                            handleDeleteTicket(ticketId);
+                                        }}
                                     />
+
                                 ))}
                             </div>
                         )}
