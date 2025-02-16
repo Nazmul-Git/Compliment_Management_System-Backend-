@@ -3,9 +3,7 @@ import React from 'react'
 // eslint-disable-next-line react/prop-types
 export default function CustomerTicketCard({ ticket, handleDeleteTicket }) {
     return (
-        <div
-            className="p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:scale-105"
-        >
+        <div className="p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:scale-105">
             <h3 className="text-xl font-semibold text-gray-800">{ticket?.subject}</h3>
             <p className="text-gray-600 mt-2">{ticket?.description}</p>
             <p className="text-sm text-gray-500 mt-2">
@@ -26,5 +24,5 @@ export default function CustomerTicketCard({ ticket, handleDeleteTicket }) {
                 </button>
             </div>
         </div>
-    )
+    );
 }

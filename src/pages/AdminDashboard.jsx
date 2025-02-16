@@ -8,6 +8,8 @@ const AdminDashboard = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
+    const [replyMessage, setReplyMessage] = useState('');
+    const [selectedTicketId, setSelectedTicketId] = useState(null); 
     const navigate = useNavigate();
 
     // Protect route
@@ -48,6 +50,7 @@ const AdminDashboard = () => {
         }
     };
 
+    // Handle ticket status update
     const handleUpdateStatus = async (ticketId, status) => {
         try {
             const token = localStorage.getItem('token');
@@ -55,7 +58,7 @@ const AdminDashboard = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            // Update the tickets state immediately without refetching all tickets
+            // Update the tickets state 
             setTickets((prevTickets) =>
                 prevTickets.map((ticket) =>
                     ticket.id === ticketId ? { ...ticket, status } : ticket
@@ -74,7 +77,7 @@ const AdminDashboard = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            // Remove the deleted ticket from the tickets state
+            // remove the deleted ticket from the tickets state
             setTickets((prevTickets) =>
                 prevTickets.filter((ticket) => ticket.id !== ticketId)
             );
@@ -89,18 +92,48 @@ const AdminDashboard = () => {
         fetchTickets(e.target.value);
     };
 
-    // Logout method
+    // Handle reply 
+    const handleAddReply = async (ticketId) => {
+        if (!replyMessage.trim()) {
+            setError('Reply message cannot be empty');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post(
+                `http://localhost:5000/api/replies`,
+                { ticket_id: ticketId, message: replyMessage },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setReplyMessage('');
+            setError('');
+
+            // Update the tickets state 
+            setTickets((prevTickets) =>
+                prevTickets.map((ticket) =>
+                    ticket.id === ticketId
+                        ? { ...ticket, replies: [...(ticket.replies || []), response.data] }
+                        : ticket
+                )
+            );
+        } catch (error) {
+            setError(error.message || 'Failed to add reply');
+        }
+    };
+
+    // Logout 
     const handleLogout = () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
-        navigate('/'); 
+        navigate('/');
     };
 
     return (
         <div className="px-4 py-8 sm:px-6 md:px-8 lg:px-16 bg-gradient-to-r from-indigo-50 to-purple-100 min-h-screen shadow-[10px_10px_15px_0px_rgba(0,0,0,0.1)]">
             <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-800 text-center py-8">Admin Dashboard 🚀</h1>
 
-            {/* Logout Button */}
             <div className="text-center mb-6">
                 <button
                     onClick={handleLogout}
@@ -126,7 +159,7 @@ const AdminDashboard = () => {
                 >
                     <option value="">All</option>
                     <option value="open">Open</option>
-                    <option value="resolved">Resolved</option> 
+                    <option value="resolved">Resolved</option>
                 </select>
             </div>
 
@@ -146,7 +179,30 @@ const AdminDashboard = () => {
 
                     <div className="divide-y divide-gray-200">
                         {tickets.map((ticket) => (
-                            <AdminTicketCard key={ticket.id} handleUpdateStatus={handleUpdateStatus} handleDeleteTicket={handleDeleteTicket} ticket={ticket} />
+                            <React.Fragment key={ticket.id}>
+                                <AdminTicketCard
+                                    ticket={ticket}
+                                    handleUpdateStatus={handleUpdateStatus}
+                                    handleDeleteTicket={handleDeleteTicket}
+                                    setSelectedTicketId={setSelectedTicketId}
+                                />
+                                {selectedTicketId === ticket.id && (
+                                    <div className="p-4 bg-gray-50">
+                                        <textarea
+                                            value={replyMessage}
+                                            onChange={(e) => setReplyMessage(e.target.value)}
+                                            placeholder="Type your reply here..."
+                                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                        <button
+                                            onClick={() => handleAddReply(ticket.id)}
+                                            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+                                        >
+                                            Add Reply
+                                        </button>
+                                    </div>
+                                )}
+                            </React.Fragment>
                         ))}
                     </div>
                 </div>

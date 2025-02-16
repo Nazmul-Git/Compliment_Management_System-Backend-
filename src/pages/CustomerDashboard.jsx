@@ -6,6 +6,7 @@ import { FaSearch } from 'react-icons/fa';
 
 const CustomerDashboard = () => {
     const [tickets, setTickets] = useState([]);
+    const [replies, setReplies] = useState({}); 
     const [subject, setSubject] = useState('');
     const [description, setDescription] = useState('');
     const [error, setError] = useState('');
@@ -47,9 +48,19 @@ const CustomerDashboard = () => {
             const token = localStorage.getItem('token');
             const response = await axios.get('http://localhost:5000/api/tickets', {
                 headers: { Authorization: `Bearer ${token}` },
-                params: { search }, // Pass search term as query parameter
+                params: { search }, 
             });
             setTickets(response.data);
+
+            // Fetch replies for each ticket
+            const repliesData = {};
+            for (const ticket of response.data) {
+                const repliesResponse = await axios.get(`http://localhost:5000/api/replies/${ticket.id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                repliesData[ticket.id] = repliesResponse.data;
+            }
+            setReplies(repliesData); 
         } catch (error) {
             setError(error.message || 'Failed to fetch tickets');
         } finally {
@@ -80,8 +91,9 @@ const CustomerDashboard = () => {
         }
     };
 
-    // Delete a ticket with confirmation
+    // Delete a ticket
     const handleDeleteTicket = async (ticketId) => {
+        console.log(ticketId)
         if (window.confirm('Are you sure you want to delete this ticket?')) {
             try {
                 const token = localStorage.getItem('token');
@@ -93,15 +105,14 @@ const CustomerDashboard = () => {
                 await axios.delete(`http://localhost:5000/api/tickets/${ticketId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                fetchTickets();  // Fetch the updated list of tickets
+                fetchTickets();
             } catch (error) {
                 setError(error.message || '❗ Failed to delete ticket');
             }
         }
     };
 
-
-    // Logout method
+    // Logout 
     const handleLogout = () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
@@ -130,7 +141,6 @@ const CustomerDashboard = () => {
                     </div>
                 )}
 
-                {/* Grid Layout for Create Ticket Form and Ticket List */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Create Ticket Form */}
                     <div className="p-8 rounded-xl transition-shadow duration-300">
@@ -164,7 +174,7 @@ const CustomerDashboard = () => {
                     <div className="p-8 rounded-xl transition-shadow duration-300 overflow-y-auto max-h-[calc(100vh-200px)] sticky top-0">
                         <div className="flex justify-between">
                             <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Tickets</h2>
-                            {/* Search Bar */}
+                            
                             <div className="mb-10 flex items-center">
                                 <FaSearch className="mr-2 text-xl" />
                                 <input
@@ -186,15 +196,27 @@ const CustomerDashboard = () => {
                         ) : (
                             <div className="space-y-6">
                                 {tickets.map((ticket) => (
-                                    <CustomerTicketCard
-                                        key={ticket.id}
-                                        ticket={ticket}
-                                        handleDeleteTicket={(ticketId) => {
-                                            // console.log("Deleting ticket with ID:", ticketId); 
-                                            handleDeleteTicket(ticketId);
-                                        }}
-                                    />
-
+                                    <div key={ticket.id} className="border p-4 rounded-lg">
+                                        <CustomerTicketCard
+                                            ticket={ticket}
+                                            handleDeleteTicket={() => handleDeleteTicket(ticket.id)}
+                                        />
+                                        <div className="mt-4">
+                                            <h3 className="text-lg font-semibold">Replies:</h3>
+                                            {replies[ticket.id] && replies[ticket.id].length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {replies[ticket.id].map((reply) => (
+                                                        <div key={reply.id} className="p-4 bg-gray-100 rounded-lg">
+                                                            <p>{reply.message}</p>
+                                                            <small>{new Date(reply.created_at).toLocaleString()}</small>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p>No replies yet.</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         )}
