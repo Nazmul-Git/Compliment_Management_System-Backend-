@@ -11,6 +11,7 @@ const AdminDashboard = () => {
     const [replyMessage, setReplyMessage] = useState('');
     const [selectedTicketId, setSelectedTicketId] = useState(null); 
     const navigate = useNavigate();
+    const VITE_REACT_APP_HTTP_URL = import.meta.env.VITE_REACT_APP_HTTP_URL;
 
     // Protect route
     useEffect(() => {
@@ -38,7 +39,7 @@ const AdminDashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/tickets', {
+            const response = await axios.get(`${VITE_REACT_APP_HTTP_URL}/api/tickets`, {
                 headers: { Authorization: `Bearer ${token}` },
                 params: { status: filter },
             });
@@ -54,7 +55,7 @@ const AdminDashboard = () => {
     const handleUpdateStatus = async (ticketId, status) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/tickets/${ticketId}`, { status }, {
+            await axios.put(`${VITE_REACT_APP_HTTP_URL}/api/tickets/${ticketId}`, { status }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -73,7 +74,7 @@ const AdminDashboard = () => {
     const handleDeleteTicket = async (ticketId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/tickets/${ticketId}`, {
+            await axios.delete(`${VITE_REACT_APP_HTTP_URL}/api/tickets/${ticketId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -102,7 +103,7 @@ const AdminDashboard = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.post(
-                `http://localhost:5000/api/replies`,
+                `${VITE_REACT_APP_HTTP_URL}/api/replies`,
                 { ticket_id: ticketId, message: replyMessage },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

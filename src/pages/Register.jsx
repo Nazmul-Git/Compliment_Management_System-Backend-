@@ -8,10 +8,11 @@ const Register = () => {
     const [role, setRole] = useState('customer');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const VITE_REACT_APP_HTTP_URL = import.meta.env.VITE_REACT_APP_HTTP_URL;
 
     const handleRegister = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/signup', {
+            const response = await axios.post(`${VITE_REACT_APP_HTTP_URL}/api/auth/signup`, {
                 username,
                 password,
                 role,

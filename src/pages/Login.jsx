@@ -6,10 +6,11 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const VITE_REACT_APP_HTTP_URL = import.meta.env.VITE_REACT_APP_HTTP_URL;
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/login', {
+            const response = await axios.post(`${VITE_REACT_APP_HTTP_URL}/api/auth/login`, {
                 username,
                 password,
             });

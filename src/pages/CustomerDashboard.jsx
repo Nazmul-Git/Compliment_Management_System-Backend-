@@ -14,6 +14,8 @@ const CustomerDashboard = () => {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const VITE_REACT_APP_HTTP_URL = import.meta.env.VITE_REACT_APP_HTTP_URL;
+    // console.log(REACT_APP_HTTP_URL)
 
     // Protect route
     useEffect(() => {
@@ -46,7 +48,7 @@ const CustomerDashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/tickets', {
+            const response = await axios.get(`${VITE_REACT_APP_HTTP_URL}/api/tickets`, {
                 headers: { Authorization: `Bearer ${token}` },
                 params: { search }, 
             });
@@ -55,7 +57,7 @@ const CustomerDashboard = () => {
             // Fetch replies for each ticket
             const repliesData = {};
             for (const ticket of response.data) {
-                const repliesResponse = await axios.get(`http://localhost:5000/api/replies/${ticket.id}`, {
+                const repliesResponse = await axios.get(`${VITE_REACT_APP_HTTP_URL}/api/replies/${ticket.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 repliesData[ticket.id] = repliesResponse.data;
@@ -78,7 +80,7 @@ const CustomerDashboard = () => {
         try {
             const token = localStorage.getItem('token');
             await axios.post(
-                'http://localhost:5000/api/tickets',
+                `${VITE_REACT_APP_HTTP_URL}/api/tickets`,
                 { subject, description },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -102,7 +104,7 @@ const CustomerDashboard = () => {
                     return;
                 }
 
-                await axios.delete(`http://localhost:5000/api/tickets/${ticketId}`, {
+                await axios.delete(`${VITE_REACT_APP_HTTP_URL}/api/tickets/${ticketId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 fetchTickets();
